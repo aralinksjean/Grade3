@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scratch Cat's Island Adventure</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9f3ff;--panel:#fff;--ink:#2b2b4a;--purple:#855cd6;--motion:#4c97ff;--looks:#9966ff;--sound:#cf63cf;--events:#ffbf00;--control:#ffab19;--vars:#ff8c1a;--cs:calc(min(92vw,420px)/6)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:500 18px/1.4 Fredoka,system-ui,sans-serif;padding:0 12px env(safe-area-inset-bottom,0)}
+header{background:var(--purple);color:#fff;margin:0 -12px;padding:calc(10px + env(safe-area-inset-top,0)) 14px 12px}
+.wrap{max-width:980px;margin:0 auto}
+.top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+h1{font-size:1.5rem;margin:0}
+.pill{background:#fff3;color:#fff;border:0;border-radius:99px;padding:4px 14px;font:inherit;font-size:.95rem;cursor:pointer}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+nav button{width:44px;height:44px;border-radius:50%;border:3px solid #fff7;background:#0003;color:#fff;font:700 1.1rem Fredoka;cursor:pointer}
+nav button.done{background:#3cb371}nav button.cur{border-color:#ffd84a;box-shadow:0 0 0 3px #ffd84a88}
+#brief{background:var(--panel);border-radius:18px;padding:12px 16px;margin:14px 0;border:3px solid #d9ccff}
+#brief h2{margin:0 0 2px;font-size:1.3rem;color:var(--purple)}#brief p{margin:0}
+details{margin-top:6px;font-size:.9rem;color:#6a6a95}summary{cursor:pointer}
+.main{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+@media(max-width:820px){.main{grid-template-columns:1fr}}
+#stagebox{display:flex;flex-direction:column;align-items:center;gap:8px}
+#stage{position:relative;width:calc(var(--cs)*6);height:calc(var(--cs)*6);border-radius:20px;overflow:hidden;border:5px solid #fff;box-shadow:0 4px 14px #0002;
+background:linear-gradient(#0000 calc(100% - 2px),#ffffff99 0) 0 0/100% var(--cs),linear-gradient(90deg,#0000 calc(100% - 2px),#ffffff99 0) 0 0/var(--cs) 100%,#9fe0f5}
+.sp{position:absolute;width:var(--cs);height:var(--cs);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.62);transition:left .3s,top .3s}
+#cat{z-index:3}.arr{position:absolute;inset:0;display:flex;justify-content:center;color:#e0457b;font-style:normal;font-size:calc(var(--cs)*.26);line-height:1;transition:transform .3s}
+.bubble{position:absolute;bottom:90%;left:50%;transform:translateX(-30%);background:#fff;color:#222;border:2px solid #999;border-radius:16px;padding:2px 10px;font-size:calc(var(--cs)*.27);white-space:nowrap;z-index:9}
+.shake{animation:sh .35s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pop{animation:pp .4s}@keyframes pp{50%{transform:scale(1.6)}}
+@media(prefers-reduced-motion:reduce){.shake,.pop{animation:none}.sp,.arr{transition:none}}
+#hud{display:flex;gap:16px;font-size:1rem}
+#msg{min-height:3em;text-align:center;max-width:calc(var(--cs)*6);font-weight:700}#msg.bad{color:#c2410c}#msg.good{color:#15803d}
+.panel{background:var(--panel);border-radius:18px;padding:12px;border:3px solid #d9ccff}
+.lab{font-size:.95rem;color:#6a6a95;margin:2px 0 6px}
+#script{min-height:170px;max-height:50vh;overflow:auto;background:#f4efff;border-radius:14px;padding:10px;margin-bottom:12px}
+.hat{display:inline-block;background:var(--events);color:#4a3500;font-weight:700;border-radius:20px 20px 6px 6px;padding:6px 14px;margin-bottom:4px}
+.blk{margin:3px 0;border-radius:8px;color:#fff;border:1px solid #0003}
+.blk.motion{background:var(--motion)}.blk.looks{background:var(--looks)}.blk.sound{background:var(--sound)}.blk.control{background:var(--control);color:#3a2400}.blk.vars{background:var(--vars);color:#3a1c00}
+.blk.on{outline:4px solid #333;box-shadow:0 0 12px #0006}
+.row{display:flex;align-items:center;gap:6px;padding:8px 12px;font-weight:700;min-height:46px;flex-wrap:wrap;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.row button{border:0;border-radius:99px;background:#fff;color:#333;font:700 1rem Fredoka;padding:2px 12px;min-height:30px;cursor:pointer}
+.row .x{margin-left:auto;width:30px;padding:0;background:#0004;color:#fff}
+.zone{margin:0 8px 8px 24px;padding:4px 6px;border-left:8px solid #0003;background:#0002;border-radius:0 8px 8px 0;min-height:36px;cursor:pointer}.zone.tgt{background:#fff6;border-left-color:#fff}.zone.over{background:#fff8}
+.zone:empty::before{content:'drop blocks here';font-size:.85rem;opacity:.7;font-weight:500}
+.ph{height:14px;margin:3px 0;border-radius:7px;background:#2b2b4a}
+.pal{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.pal button{border:0;border-radius:12px;padding:10px 14px;min-height:52px;font:700 1rem Fredoka;cursor:grab;color:#fff;touch-action:none;user-select:none;-webkit-user-select:none}
+.pal .motion{background:var(--motion)}.pal .looks{background:var(--looks)}.pal .sound{background:var(--sound)}.pal .control{background:var(--control);color:#3a2400}.pal .vars{background:var(--vars);color:#3a1c00}
+.pal button:disabled{opacity:.35;cursor:not-allowed}#pal.trash{outline:4px dashed #e0457b;outline-offset:5px;border-radius:12px}
+.ctl{display:flex;gap:8px}.ctl button{flex:1;border:0;border-radius:99px;padding:14px;font:700 1.15rem Fredoka;cursor:pointer;color:#fff}
+#run{background:#3cb371}#run.stop{background:#e0457b}#reset{background:#f59e0b}#clear{background:#8b8baf}
+body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
+.ghost{position:fixed;z-index:50;pointer-events:none;padding:8px 14px;font-weight:700;opacity:.93;box-shadow:0 10px 24px #0007;transform:rotate(-2deg);border-radius:8px}
+button:focus-visible{outline:4px solid #333;outline-offset:2px}
+#ov{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:16px;z-index:20}#ov.show{display:flex}
+#card{background:#fff;color:var(--ink);border-radius:26px;padding:24px;max-width:460px;width:100%;text-align:center}
+#card h2{margin:0 0 6px;font-size:1.8rem}.big{font-size:3rem}
+#card button,#card input{font:700 1.1rem Fredoka;border-radius:99px;padding:10px 22px;border:3px solid var(--purple);margin:6px 4px}#card button{background:var(--purple);color:#fff;cursor:pointer}
+.cert{border:6px double var(--control);border-radius:16px;padding:14px;margin:10px 0}
+@media print{body{background:#fff}header,.main,#brief{display:none}#ov{position:static;background:none;display:block}#card button,#card input{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="top"><h1>🐱 Scratch Cat's Island</h1><span class="pill" id="clock">⏱ 00:00</span><span><button class="pill" id="spd">🐢 Slow</button> <button class="pill" id="mute">🔊 Sound on</button></span></div>
+<nav id="nav" aria-label="Missions"></nav>
+</div></header>
+<div class="wrap">
+<div id="brief"><h2 id="st"></h2><p id="sp"></p><details><summary>Teacher tip</summary><span id="tip"></span></details></div>
+<div class="main">
+<div id="stagebox"><div id="stage" aria-label="Island map"></div>
+<div id="hud"><span>⭐ Score <b id="hs">0</b></span><span>🐟 <b id="hp">0/0</b></span><span>Blocks <b id="hb">0</b></span></div>
+<div id="msg" role="status"></div></div>
+<div class="panel">
+<div class="lab">Drag blocks into your code (or just tap them)</div>
+<div id="script" aria-label="Your code"></div>
+<div class="lab">Blocks</div>
+<div class="pal" id="pal"></div>
+<div class="ctl"><button id="run">🏁 Go!</button><button id="reset">↺ Back</button><button id="clear">🗑 Clear</button></div>
+</div></div></div>
+<div id="ov"><div id="card"></div></div>
+
+<script>
+var $=function(s){return document.querySelector(s)};
+var B={up:{i:'⬆️',n:'go up 1 step',c:'motion',dx:0,dy:-1},down:{i:'⬇️',n:'go down 1 step',c:'motion',dx:0,dy:1},left:{i:'⬅️',n:'go left 1 step',c:'motion',dx:-1,dy:0},right:{i:'➡️',n:'go right 1 step',c:'motion',dx:1,dy:0},
+fwd:{i:'🐾',n:'move 1 step',c:'motion'},turnL:{i:'↺',n:'turn left',c:'motion'},turnR:{i:'↻',n:'turn right',c:'motion'},
+say:{i:'💬',n:'say Hello! for 2 seconds',c:'looks'},eat:{i:'🐟',n:'eat the fish',c:'looks'},sound:{i:'🔊',n:'play sound pop',c:'sound'},
+wait:{i:'⏳',n:'wait 1 second',c:'control'},rep:{n:'repeat',c:'control',C:1},forever:{n:'forever',c:'control',C:1},if:{n:'if',c:'control',C:1,cond:1},stop:{i:'🛑',n:'stop all',c:'control'},add:{i:'➕',n:'change score by 1',c:'vars'}};
+var CN={goal:'touching goal?',fish:'touching fish?',wall:'tree or edge ahead?'};
+var uid=0;
+function mk(t,o,body){var n={id:++uid,t:t,n:3,cond:'goal',body:body||[]};for(var k in o)n[k]=o[k];return n}
+var MV=['up','down','left','right'],TM=['fwd','turnL','turnR'];
+var LV=[
+{t:'Mission 1: Flag Start',s:'Every Scratch program starts with a yellow hat block. Build code to walk Scratch Cat to her home 🏠, then press Go!',tip:'Point out the yellow "when flag clicked" hat. Ask kids to count steps aloud. About 5 minutes.',start:[0,5,1],goal:[4,3],ge:'🏠',fish:[],rocks:[],allow:['up','right'],conds:[],max:10,par:4},
+{t:'Mission 2: Move and Turn',s:'New Scratch blocks! 🐾 move moves the cat the way she is facing. Use turn blocks to change which way she faces (the pink arrow shows it).',tip:'This is the key ScratchJr to Scratch shift: direction comes from turning, not from arrow blocks. About 7 minutes.',start:[0,5,1],goal:[3,2],ge:'🏠',fish:[],rocks:[],allow:TM,conds:[],max:10,par:5},
+{t:'Mission 3: Repeat It',s:'Climb the stairs to the house! Put a pattern inside a repeat block and change the number in the white bubble.',tip:'The pattern is move, turn left, move, turn right. Compare 20 blocks vs 5 with repeat. About 7 minutes.',start:[0,5,1],goal:[5,0],ge:'🏠',fish:[],rocks:[],allow:TM.concat('rep'),conds:[],max:6,par:5},
+{t:'Mission 4: Say Hello',s:'Walk to your friend 🐶. When you get there, make the cat say 💬 hello and play a 🔊 sound!',tip:'Order matters: arrive first, then talk. Let kids record their own sound idea for later. About 6 minutes.',start:[0,5,1],goal:[4,2],ge:'🐶',fish:[],rocks:[],allow:MV.concat('rep','say','sound','wait'),conds:[],max:10,par:6,need:'both'},
+{t:'Mission 5: Forever',s:'The 🔁 forever block never stops by itself! Make the cat walk right forever, but use if touching goal then 🛑 stop all so she stops at the house.',tip:'Try it without the stop to see what happens. Discuss why forever needs a way out. About 8 minutes.',start:[0,3,1],goal:[5,3],ge:'🏠',fish:[],rocks:[],allow:['right','rep','forever','if','stop'],conds:['goal'],max:5,par:4},
+{t:'Mission 6: Fish Collector',s:'Collect the 3 fish 🐟 on the way home. If you try to eat where there is no fish, the cat gets confused, so ask first with an if block!',tip:'The if block checks a condition. Tap the condition to change it to touching fish. About 8 minutes.',start:[0,5,1],goal:[5,5],ge:'🏠',fish:[[1,5],[3,5],[4,5]],rocks:[],allow:['right','fwd','rep','if','eat'],conds:['fish','goal','wall'],max:6,par:4},
+{t:'Mission 7: Edge Walker',s:'Walk around the edge of the island to the house. Forever: if a tree or edge is ahead, turn right. Then move. Stop when touching goal.',tip:'Hard but fun. The if blocks go inside the forever block. Tap each condition to set it. About 9 minutes.',start:[0,0,1],goal:[2,5],ge:'🏠',fish:[],rocks:[],allow:TM.concat('forever','if','stop'),conds:['wall','goal'],max:7,par:6},
+{t:'Mission 8: Score Keeper',s:'A variable remembers a number! Each time the cat eats a fish, change score by 1. Eat all 3 fish, get a score of 3, and stop at the house.',tip:'Watch the Score counter in the top row. Ask: what would happen if we forgot the change score block? About 9 minutes.',start:[0,5,1],goal:[5,5],ge:'🏠',fish:[[1,5],[2,5],[4,5]],rocks:[],allow:['right','rep','forever','if','stop','eat','add'],conds:['fish','goal'],max:8,par:7,need:'score'},
+{t:'Mission 9: Bug Hunt 🐛',s:'A silly bug is hiding in this code! The cat never reaches the house. Find 2 bugs and fix them. Hint: check the repeat number and the last turn.',tip:'Bugs: repeat count is 3 (should be 5), and the last turn is right (should be left). Let pairs predict before pressing Go. About 8 minutes.',start:[0,0,1],goal:[5,5],ge:'🏠',fish:[],rocks:[],allow:TM.concat('rep'),conds:[],max:8,par:5,
+pre:function(){return[mk('rep',{n:3},[mk('fwd'),mk('turnR'),mk('fwd'),mk('turnR')])]}},
+{t:'Mission 10: Island Party 🎉',s:'Make your own island party! Use at least 6 blocks, with a loop, a say block and a sound block. Then show a friend.',tip:'Open-ended. If kids use forever, remind them to add a stop all. Ask each pair to explain their code. About 8 minutes.',start:[2,2,1],goal:null,ge:'',fish:[[4,2],[2,4]],rocks:[[0,0],[5,0],[0,5],[5,5]],allow:MV.concat(TM,'rep','forever','if','stop','say','sound','wait','eat','add'),conds:['fish','wall','goal'],max:14,need:'free'}
+];
+var cur=0,script=[],tgt=script,running=false,S={},done={},mute=false,ac,t0=0,D=480,DX=[0,1,0,-1],DY=[-1,0,1,0],dragged=false;
+function beep(f,d){if(mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||.12))}catch(e){}}
+document.addEventListener('click',function(){if(t0)return;t0=Date.now();setInterval(function(){var s=Math.floor((Date.now()-t0)/1000),m=Math.floor(s/60),r=s%60;$('#clock').textContent='⏱ '+(m<10?'0':'')+m+':'+(r<10?'0':'')+r},1000)});
+$('#mute').onclick=function(){mute=!mute;this.textContent=mute?'🔇 Sound off':'🔊 Sound on'};
+$('#spd').onclick=function(){D=D===480?200:480;this.textContent=D===480?'🐢 Slow':'🐇 Fast'};
+function msg(t,k){var m=$('#msg');m.textContent=t;m.className=k||''}
+function cnt(l){return l.reduce(function(a,n){return a+1+cnt(n.body)},0)}
+function has(l,ts){return l.some(function(n){return ts.indexOf(n.t)>-1||has(n.body,ts)})}
+function fl(l,n){if(l.indexOf(n)>-1)return l;for(var k=0;k<l.length;k++){var r=fl(l[k].body,n);if(r)return r}return null}
+function nav(){var n=$('#nav');n.innerHTML='';LV.forEach(function(l,i){var b=document.createElement('button');b.textContent=done[i]?'✓':i+1;b.className=(done[i]?'done ':'')+(i===cur?'cur':'');b.setAttribute('aria-label','Mission '+(i+1));b.onclick=function(){if(!running)load(i)};n.appendChild(b)})}
+function sprite(id,x,y,h){var d=document.createElement('div');d.className='sp';d.id=id;d.style.left='calc(var(--cs)*'+x+')';d.style.top='calc(var(--cs)*'+y+')';d.innerHTML=h;$('#stage').appendChild(d)}
+function hud(){var L=LV[cur];$('#hs').textContent=S.n||0;$('#hp').textContent=Object.keys(S.got||{}).length+'/'+L.fish.length;$('#hb').textContent=cnt(script)}
+function drawStage(){var L=LV[cur];$('#stage').innerHTML='';
+L.rocks.forEach(function(r,i){sprite('r'+i,r[0],r[1],'🌴')});
+if(L.goal)sprite('goal',L.goal[0],L.goal[1],L.ge);
+L.fish.forEach(function(p,i){sprite('f'+i,p[0],p[1],'🐟')});
+sprite('cat',L.start[0],L.start[1],'<span>🐱</span><i class="arr">▲</i>');
+S={x:L.start[0],y:L.start[1],d:L.start[2],ang:L.start[2]*90,got:{},n:0,steps:0,say:0,snd:0,atSay:0,atSnd:0};$('#cat .arr').style.transform='rotate('+S.ang+'deg)';hud()}
+function load(i){cur=i;var L=LV[i];script=L.pre?L.pre():[];tgt=script;$('#st').textContent=L.t;$('#sp').textContent=L.s;$('#tip').textContent=L.tip;drawStage();msg('Drag blocks into your code, or tap them!');nav();rs()}
+function rs(){renderScript();renderPal();hud();}
+function zone(l){var z=document.createElement('div');z.className='zone'+(tgt===l?' tgt':'');z._list=l;z.onclick=function(e){e.stopPropagation();if(!running){tgt=l;rs()}};return z}
+function rl(list,cont){list.forEach(function(n){var b=B[n.t],w=document.createElement('div');w.className='blk '+b.c;w.dataset.id=n.id;
+var h=document.createElement('div');h.className='row';h.append((b.i||'')+' '+b.n+' ');h.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;startDrag(e,{node:n,el:w})});
+if(n.t==='rep'){var c=document.createElement('button');c.textContent=n.n;c.setAttribute('aria-label','Change repeat number');c.onclick=function(e){e.stopPropagation();if(running)return;n.n=n.n>=10?2:n.n+1;rs()};h.appendChild(c)}
+if(b.cond){var q=document.createElement('button');q.textContent=CN[n.cond];q.onclick=function(e){e.stopPropagation();if(running)return;var cs=LV[cur].conds,j=cs.indexOf(n.cond);n.cond=cs[(j+1)%cs.length];rs()};h.appendChild(q);h.append(' then')}
+var x=document.createElement('button');x.className='x';x.textContent='✕';x.setAttribute('aria-label','Remove block');x.onclick=function(e){e.stopPropagation();if(running)return;tgt=fl(script,n)||script;var l=fl(script,n);if(l)l.splice(l.indexOf(n),1);rs()};h.appendChild(x);w.appendChild(h);
+if(b.C){var z=zone(n.body);rl(n.body,z);w.appendChild(z)}
+cont.appendChild(w)})}
+function renderScript(){var s=$('#script');s.innerHTML='<div class="hat">when 🏁 clicked</div>';var r=document.createElement('div');r.className='zone'+(tgt===script?' tgt':'');r.style.marginLeft='0';r._list=script;r.style.minHeight='110px';r.onclick=function(){if(!running){tgt=script;rs()}};rl(script,r);s.appendChild(r)}
+function renderPal(){var p=$('#pal');p.innerHTML='';var L=LV[cur],full=cnt(script)>=L.max;L.allow.forEach(function(k){var b=document.createElement('button');b.className=B[k].c;b.textContent=(B[k].i?B[k].i+' ':'')+B[k].n;b.disabled=running||full;
+b.addEventListener('pointerdown',function(e){startDrag(e,{kind:k,label:b.textContent,cls:B[k].c})});
+b.onclick=function(){if(dragged)return;var n=mk(k);if(B[k].cond)n.cond=L.conds[0]||'goal';tgt.push(n);if(B[k].C)tgt=n.body;beep(520,.08);rs()};p.appendChild(b)})}
+function startDrag(e,d){if(running||(e.pointerType==='mouse'&&e.button!==0))return;
+var x0=e.clientX,y0=e.clientY,on=false,ghost=null,ph=null,z0=null,idx=0,trash=false;
+function clr(){if(ph){ph.remove();ph=null}document.querySelectorAll('.zone.over').forEach(function(z){z.classList.remove('over')});$('#pal').classList.remove('trash');z0=null;trash=false}
+function mv(ev){
+if(!on){if(Math.hypot(ev.clientX-x0,ev.clientY-y0)<7)return;on=true;dragged=true;document.body.classList.add('dragging');
+ghost=document.createElement('div');ghost.className='ghost blk '+(d.node?B[d.node.t].c:d.cls);ghost.textContent=d.node?((B[d.node.t].i||'')+' '+B[d.node.t].n):d.label;document.body.appendChild(ghost);if(d.el)d.el.style.opacity='.3'}
+ghost.style.left=(ev.clientX+10)+'px';ghost.style.top=(ev.clientY+10)+'px';
+clr();var els=document.elementsFromPoint(ev.clientX,ev.clientY),z=null;
+for(var i=0;i<els.length;i++){var q=els[i];if(q.classList&&q.classList.contains('zone')&&!(d.el&&d.el.contains(q))){z=q;break}}
+if(z){z0=z;var kids=z.querySelectorAll(':scope > .blk');idx=kids.length;
+for(var k=0;k<kids.length;k++){var r=kids[k].getBoundingClientRect();if(ev.clientY<r.top+r.height/2){idx=k;break}}
+ph=document.createElement('div');ph.className='ph';z.insertBefore(ph,kids[idx]||null);z.classList.add('over')}
+else if(d.node&&els.some(function(q){return q.closest&&q.closest('#pal')})){trash=true;$('#pal').classList.add('trash')}}
+function end(){window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',cancel);setTimeout(function(){dragged=false},60);
+if(!on)return;if(ghost)ghost.remove();document.body.classList.remove('dragging')}
+function cancel(){z0=null;trash=false;end();clr();rs()}
+function up(){var list=z0&&z0._list,tr=trash,i=idx;end();clr();
+if(list){if(d.node){var ol=fl(script,d.node);if(ol){var oi=ol.indexOf(d.node);ol.splice(oi,1);if(ol===list&&oi<i)i--;list.splice(i,0,d.node);tgt=list}}
+else if(cnt(script)>=LV[cur].max)msg('That is all the blocks you can use. Remove one first!','bad');
+else{var n=mk(d.kind);if(B[d.kind].cond)n.cond=LV[cur].conds[0]||'goal';list.splice(i,0,n);tgt=B[d.kind].C?n.body:list;beep(520,.08)}}
+else if(tr){var o2=fl(script,d.node);if(o2){o2.splice(o2.indexOf(d.node),1);tgt=script}}
+if(on)rs()}
+window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel)}
+function hl(id){document.querySelectorAll('#script .blk').forEach(function(e){e.classList.toggle('on',id&&e.dataset.id==id)})}
+function blocked(x,y){return x<0||y<0||x>5||y>5||LV[cur].rocks.some(function(r){return r[0]===x&&r[1]===y})}
+function fishAt(){var L=LV[cur];for(var i=0;i<L.fish.length;i++)if(!S.got[i]&&L.fish[i][0]===S.x&&L.fish[i][1]===S.y)return i;return -1}
+function atGoal(){var g=LV[cur].goal;return!!g&&S.x===g[0]&&S.y===g[1]}
+function test(c){if(c==='wall')return blocked(S.x+DX[S.d],S.y+DY[S.d]);if(c==='fish')return fishAt()>-1;return atGoal()}
+var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+function place(){var b=$('#cat');b.style.left='calc(var(--cs)*'+S.x+')';b.style.top='calc(var(--cs)*'+S.y+')';b.querySelector('.arr').style.transform='rotate('+S.ang+'deg)'}
+function fail(m){throw{fail:m}}
+async function ex(l){for(var i=0;i<l.length;i++)await one(l[i])}
+async function one(n){if(!running)throw{stop:1};if(++S.steps>500)fail('The code never stopped! Try adding 🛑 stop all inside an if block.');hl(n.id);var t=n.t,b=B[t];
+if(b.dx!==undefined||t==='fwd'){var dx=b.dx!==undefined?b.dx:DX[S.d],dy=b.dx!==undefined?b.dy:DY[S.d],nx=S.x+dx,ny=S.y+dy;
+if(blocked(nx,ny)){$('#cat').classList.add('shake');beep(150,.25);await sleep(400);fail('Oops! The cat bumped into a tree or the edge. Check your blocks!')}
+S.x=nx;S.y=ny;place();beep(420,.07);await sleep(D)}
+else if(t==='turnL'||t==='turnR'){S.d=(S.d+(t==='turnL'?3:1))%4;S.ang+=t==='turnL'?-90:90;place();beep(330,.06);await sleep(D*.8)}
+else if(t==='say'){S.say=1;if(atGoal())S.atSay=1;var k=$('#cat'),bb=document.createElement('div');bb.className='bubble';bb.textContent='Hello!';k.appendChild(bb);beep(700,.12);await sleep(D*1.5);bb.remove()}
+else if(t==='sound'){S.snd=1;if(atGoal())S.atSnd=1;$('#cat').classList.add('pop');beep(300,.25);await sleep(D*.8);$('#cat').classList.remove('pop')}
+else if(t==='wait')await sleep(D*1.2);
+else if(t==='eat'){var i=fishAt();if(i<0)fail('No fish here! Use an if block and ask: touching fish?');S.got[i]=1;var f=$('#f'+i);f.classList.add('pop');setTimeout(function(){f.style.visibility='hidden'},300);beep(900,.15);hud();await sleep(D*.7)}
+else if(t==='add'){S.n++;hud();beep(700,.1);await sleep(D*.6)}
+else if(t==='stop')throw{halt:1};
+else if(t==='rep'){for(var j=0;j<n.n;j++){await ex(n.body);hl(n.id)}}
+else if(t==='forever'){for(;;){await ex(n.body);hl(n.id);if(++S.steps>500)fail('The code never stopped! Try adding 🛑 stop all inside an if block.');await sleep(60)}}
+else{await sleep(D*.4);if(test(n.cond))await ex(n.body)}}
+function chk(){var L=LV[cur],g=Object.keys(S.got).length;
+if(L.need==='free'){if(cnt(script)<6)return'Use at least 6 blocks!';if(!has(script,['rep','forever']))return'Add a loop: repeat or forever.';if(!S.say)return'Add a say block 💬.';if(!S.snd)return'Add a sound block 🔊.';return''}
+if(!atGoal())return'The cat is not at the goal yet. Count the squares and try again!';
+if(L.need==='both'&&!(S.atSay&&S.atSnd))return'You made it! Now say 💬 and play 🔊 after the cat arrives.';
+if(L.need==='score'&&S.n!==L.fish.length)return'Score is '+S.n+' but there are '+L.fish.length+' fish. Change the score each time the cat eats!';
+if(g<L.fish.length)return'There are still fish left 🐟 ('+g+'/'+L.fish.length+'). Collect them all!';return''}
+async function run(){if(running){running=false;return}
+if(!script.length){msg('Add some blocks first!','bad');return}
+drawStage();running=true;$('#run').textContent='⏹ Stop';$('#run').className='stop';renderPal();msg('Go, cat, go!');
+try{await ex(script);var e=chk();if(e)msg(e,'bad');else win()}
+catch(x){if(x.halt){var e2=chk();if(e2)msg(e2,'bad');else win()}else if(x.fail)msg(x.fail,'bad');else if(x.stop)msg('Stopped.');else throw x}
+running=false;hl(null);$('#run').textContent='🏁 Go!';$('#run').className='';renderPal();$('#cat').classList.remove('shake')}
+function win(){var L=LV[cur],ok=!L.par||cnt(script)<=L.par,st=ok?3:2;done[cur]=1;nav();msg('You did it!','good');beep(880,.15);setTimeout(function(){beep(1175,.25)},180);
+var c=$('#card');
+if(cur===LV.length-1){c.innerHTML='<div class="big">🎉🏆🎉</div><h2>You finished the island!</h2><div class="cert"><p>This certificate goes to</p><h2 id="nm">Scratch Star</h2><p>for helping Scratch Cat with 10 missions! 🐱</p></div><input id="name" placeholder="Type your name" maxlength="20" aria-label="Your name"><br><button id="pr">🖨 Print</button><button id="again">Play again</button>';
+$('#name').oninput=function(){$('#nm').textContent=this.value||'Scratch Star'};$('#pr').onclick=function(){window.print()};$('#again').onclick=function(){done={};$('#ov').classList.remove('show');load(0)}}
+else{c.innerHTML='<div class="big">🎉</div><h2>Mission complete!</h2><div class="big">'+'⭐'.repeat(st)+'☆'.repeat(3-st)+'</div><p>'+(ok?'Super neat code!':'Great job! Can you do it with '+L.par+' blocks or fewer?')+'</p><button id="nx">Next mission ▶</button><button id="rt">Stay here</button>';
+$('#nx').onclick=function(){$('#ov').classList.remove('show');load(cur+1)};$('#rt').onclick=function(){$('#ov').classList.remove('show')}}
+$('#ov').classList.add('show');setTimeout(function(){var f=c.querySelector('button');if(f)f.focus()},50)}
+$('#run').onclick=run;
+$('#reset').onclick=function(){if(!running){drawStage();msg('The cat is back at the start.')}};
+$('#clear').onclick=function(){if(!running){script.length=0;tgt=script;drawStage();rs();msg('All clear! Drag a block to start.')}};
+load(0);
+</script>
+</body>
+</html>
